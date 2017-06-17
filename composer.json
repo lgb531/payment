@@ -1,7 +1,7 @@
 {
     "name": "leolei/payment",
     "description": "thinkphp5 聚合支付通道",
-    "keywords": ["银联", "Thinkphp", "thinkphp5",
+    "keywords": ["银联", "Thinkphp", "thinkphp5"],
     "homepage": "https://github.com/lgb531/payment",
     "minimum-stability": "stable",
     "type": "library",
