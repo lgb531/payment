@@ -19,7 +19,6 @@
     "autoload": {
         "psr-4": {
             "leolei\\Unionpay\\": "src/Unionpay/"
-            // "leolei\\Alipay\\": "src/Alipay/"
         }
     }
 }
