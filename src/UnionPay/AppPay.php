@@ -1,6 +1,6 @@
 <?php
 
-namespace leolei\Unionpay\Mobile;
+namespace leolei\Unionpay;
 
 use leolei\Unionpay\Lib\Rsa;
 use leolei\Unionpay\Config;
@@ -10,13 +10,13 @@ use leolei\Unionpay\Config;
  *
  * @author leolei <346991581@qq.com>
  */
-class App
+class AppPay
 {
     //请求地址
-    private $frontTransUrl     = 'https://gateway.95516.com/gateway/api/frontTransReq.do';
-    private $backTransUrl      = 'https://gateway.95516.com/gateway/api/backTransReq.do';
-    private $appTransUrl       = 'https://gateway.95516.com/gateway/api/appTransReq.do';
-    private $singleQueryUrl    = 'https://gateway.95516.com/gateway/api/queryTrans.do';
+    private $frontTransUrl;
+    private $backTransUrl;
+    private $appTransUrl;
+    private $singleQueryUrl;
     //基本信息
     private $version        = '5.0.0';
     private $sign_method    = '01';//rsa
@@ -40,8 +40,14 @@ class App
      */
     public function __construct()
     {
+        //通讯网址
+        $this->frontTransUrl = Config::frontTransUrl();
+        $this->backTransUrl = Config::backTransUrl();
+        $this->appTransUrl = Config::appTransUrl();
+        $this->singleQueryUrl = Config::singleQueryUrl();
+        //参数配置
         $this->cert_dir = Config::getCerDir(); //公钥目录
-        $this->cert_dir = Config::getCerPath(); //证书路径
+        $this->cert_path = Config::getCerPath(); //证书路径
         $this->cert_pwd = Config::getCerPwd(); //证书密码
         $this->merchant_id = Config::getMerchantId(); //商户号
     }

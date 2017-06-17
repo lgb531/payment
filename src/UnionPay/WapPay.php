@@ -9,13 +9,13 @@ use leolei\Unionpay\Config;
  *
  * @author leolei <346991581@qq.com>
  */
-class Wap
+class WapPay
 {
     //请求地址
-    private $frontTransUrl     = 'https://gateway.95516.com/gateway/api/frontTransReq.do';
-    private $backTransUrl      = 'https://gateway.95516.com/gateway/api/backTransReq.do';
-    private $appTransUrl       = 'https://gateway.95516.com/gateway/api/appTransReq.do';
-    private $singleQueryUrl    = 'https://gateway.95516.com/gateway/api/queryTrans.do';
+    private $frontTransUrl;
+    private $backTransUrl;
+    private $appTransUrl;
+    private $singleQueryUrl;
     //基本信息
     private $version  = '5.0.0';
     private $sign_method = '01';
@@ -27,7 +27,6 @@ class Wap
     private $order_id;
     private $txn_amt;
     private $txn_time;
-
     //common
     private $cert_dir;
     private $cert_path;
@@ -41,8 +40,14 @@ class Wap
      */
     public function __construct()
     {
+        //通讯网址
+        $this->frontTransUrl = Config::frontTransUrl();
+        $this->backTransUrl = Config::backTransUrl();
+        $this->appTransUrl = Config::appTransUrl();
+        $this->singleQueryUrl = Config::singleQueryUrl();
+        //参数配置
         $this->cert_dir = Config::getCerDir(); //公钥目录
-        $this->cert_dir = Config::getCerPath(); //证书路径
+        $this->cert_path = Config::getCerPath(); //证书路径
         $this->cert_pwd = Config::getCerPwd(); //证书密码
         $this->merchant_id = Config::getMerchantId(); //商户号
     }
