@@ -4,23 +4,23 @@ namespace leolei\AllinPay;
 use leolei\AllinPay\Config;
 
 /**
- * Í¨ÁªH5Ö§¸¶Àà
+ * é€šè”H5æ”¯ä»˜ç±»
  * Class WapPay
  */
 class WapPay
 {
-    //ÇëÇóµØÖ·
+    //è¯·æ±‚åœ°å€
     private $wapPayUrl;
     private $userSignUrl;
-    //»ù±¾ĞÅÏ¢
+    //åŸºæœ¬ä¿¡æ¯
     private $version  = 'v1.0';
     private $signType = '0';
     private $payType = '33';
-    //ÉÌ»§ĞÅÏ¢
+    //å•†æˆ·ä¿¡æ¯
     private $mer_id;
     private $front_url;
     private $back_url;
-    //¶©µ¥ĞÅÏ¢
+    //è®¢å•ä¿¡æ¯
     private $order_id;
     private $txn_amt;
     private $txn_time;
@@ -29,46 +29,46 @@ class WapPay
     private $key;
 
     /**
-     * ³õÊ¼»¯²ÎÊıÅäÖÃ
+     * åˆå§‹åŒ–å‚æ•°é…ç½®
      *
      * @author leolei <346991581@qq.com>
      */
     public function __construct()
     {
-        //Í¨Ñ¶ÍøÖ·
+        //é€šè®¯ç½‘å€
         $this->wapPayUrl = Config::wapPayUrl();
         $this->userSignUrl = Config::userSignUrl();
-        //²ÎÊıÅäÖÃ
-        $this->mer_id = Config::getMerId(); //ÉÌ»§ºÅ
-        $this->key = Config::getSign(); //Ö¤ÊéÃÜÂë
+        //å‚æ•°é…ç½®
+        $this->mer_id = Config::getMerId(); //å•†æˆ·å·
+        $this->key = Config::getSign(); //è¯ä¹¦å¯†ç 
     }
 
     /**
-     * H5¿ì½İÖ§¸¶½Ó¿Ú
+     * H5å¿«æ·æ”¯ä»˜æ¥å£
      *
      * @return void
      * @author leolei <346991581@qq.com>
      */
     public function consume()
     {
-        //ÅäÖÃ²ÎÊı
+        //é…ç½®å‚æ•°
         $params = [
-            'inputCharset'  => '1', //±àÂë·½Ê½ 1:utf-8 2:gbk 3:gb2312
-            'pickupUrl'     => $this->front_url, //Ç°Ì¨Í¨ÖªµØÖ·
-            'receiveUrl'    => $this->back_url, //ºóÌ¨Í¨ÖªµØÖ·
-            'version'       => $this->version, //°æ±¾ºÅ
-            'language'      => '1', //ÓïÑÔÀàĞÍ 1-¼òÌåÖĞÎÄ 2-·±ÌåÖĞÎÄ 3-Ó¢ÎÄ
-            'signType'      => '0', // 0-md5 1-Ö¤Êé
+            'inputCharset'  => '1', //ç¼–ç æ–¹å¼ 1:utf-8 2:gbk 3:gb2312
+            'pickupUrl'     => $this->front_url, //å‰å°é€šçŸ¥åœ°å€
+            'receiveUrl'    => $this->back_url, //åå°é€šçŸ¥åœ°å€
+            'version'       => $this->version, //ç‰ˆæœ¬å·
+            'language'      => '1', //è¯­è¨€ç±»å‹ 1-ç®€ä½“ä¸­æ–‡ 2-ç¹ä½“ä¸­æ–‡ 3-è‹±æ–‡
+            'signType'      => '0', // 0-md5 1-è¯ä¹¦
             'merchantId'    => $this->mer_id,
             'payerName'     => '',
             'payerEmail'    => '',
             'payerTelephone'=> '',
             'payerIDCard'   => '',
             'pid'           => '',
-            'orderNo'       => $this->order_id,//¶©µ¥ºÅ
-            'orderAmount'   => $this->txn_amt,//¶©µ¥½ğ¶î
+            'orderNo'       => $this->order_id,//è®¢å•å·
+            'orderAmount'   => $this->txn_amt,//è®¢å•é‡‘é¢
             'orderCurrenc'  => '0',
-            'orderDatetime' => $thi->txn_time,//½»Ò×·¢ÆğÊ±¼ä
+            'orderDatetime' => $this->txn_time,//äº¤æ˜“å‘èµ·æ—¶é—´
             'orderExpireDatetime'=> '',
             'productName'   => '',
             'productPrice'  => '',
@@ -81,33 +81,36 @@ class WapPay
             'payType'       => $this->payType,
             'issuerId'      => '',
             'pan'           => '',
-            'tradeNature'   => '' //Ñ¡Ìî
+            'tradeNature'   => '' //é€‰å¡«
         ];
 
-        //Éú³ÉÇ©Ãû
+        //ç”Ÿæˆç­¾å
         $params['signMsg'] = $this->makeSignature($params);
-        //Å×³ö±íµ¥---Ç°Ì¨»Øµ÷
+        //æŠ›å‡ºè¡¨å•---å‰å°å›è°ƒ
         $html_form = self::createAutoFormHtml($params, $this->wapPayUrl);
 
         return $html_form;
     }
 
     /**
-     * Í¨ÁªÒşĞÔ×¢²á
+     * é€šè”éšæ€§æ³¨å†Œ
      *
      * @return void
      * @author leolei <346991581@qq.com>
      */
     public function user_sign()
     {
-        //ÅäÖÃ²ÎÊı
+        //é…ç½®å‚æ•°
         $params = [
-            'signType'      => '0', // 0-md5 1-Ö¤Êé
+            'signType'      => '0', // 0-md5 1-è¯ä¹¦
             'merchantId'    => $this->mer_id,
             'partnerUserId' => $this->user_id,
+            'userName'      => '',
+            'pidType'       => '',
+            'pidCode'       => ''
         ];
 
-        //Éú³ÉÇ©Ãû
+        //ç”Ÿæˆç­¾å
         $params['signMsg'] = $this->makeSignature($params);
 
         $data = http_build_query($params);
@@ -124,7 +127,7 @@ class WapPay
         $sFile = file_get_contents($this->userSignUrl, false, $cxContext);
         $extra = json_decode($sFile, true);
 
-        if ($extra) {
+        if ($extra && isset($extra['userId'])) {
             return $extra['userId'];
         } else {
             return fasle;
@@ -132,7 +135,7 @@ class WapPay
     }
 
     /**
-     * ·µ»Ø×Ö·û´®ÑéÖ¤Ç©Ãû
+     * è¿”å›å­—ç¬¦ä¸²éªŒè¯ç­¾å
      *
      * @param array $data
      * @return void
@@ -140,7 +143,7 @@ class WapPay
      */
     public function verify($data = null)
     {
-        // ÏÈÅĞ¶ÏÊÇ·ñÓĞ·µ»Ø²ÎÊı
+        // å…ˆåˆ¤æ–­æ˜¯å¦æœ‰è¿”å›å‚æ•°
         if (!$data) {
             if (empty($_POST) && empty($_GET)) {
                 return false;
@@ -159,7 +162,7 @@ class WapPay
     }
 
     /**
-     * Ö§¸¶×Ö·û´®Ç©Ãû
+     * æ”¯ä»˜å­—ç¬¦ä¸²ç­¾å
      *
      * @param array $params
      * @return void
@@ -167,19 +170,19 @@ class WapPay
      */
     private function makeSignature($params)
     {
-        // Çå³ı¿ÕÊı¾İ
+        // æ¸…é™¤ç©ºæ•°æ®
         foreach ($params as $key => $val) {
             if ($val == '') {
                 unset($params[$key]);
             }
         }
         $query = http_build_query($params);
-        $query .= $query."&key=".$this->key;
+        $query = '&'.$query.'&key='.$this->key.'&';
         return strtoupper(md5($query));
     }
 
     /**
-     * ¹¹ÔìH5Ö§¸¶±íµ¥
+     * æ„é€ H5æ”¯ä»˜è¡¨å•
      * @param $params
      * @param $reqUrl
      * @return string
@@ -204,5 +207,41 @@ eot;
         </html>
 eot;
         return $html;
+    }
+
+    public function setNotifyUrl($value)
+    {
+        $this->back_url = trim($value);
+        return $this;
+    }
+
+    public function setReturnUrl($value)
+    {
+        $this->front_url = trim($value);
+        return $this;
+    }
+
+    public function setOrderId($value)
+    {
+        $this->order_id = trim($value);
+        return $this;
+    }
+
+    public function setTxnAmt($value)
+    {
+        $this->txn_amt = trim($value);
+        return $this;
+    }
+
+    public function setTxnTime($value)
+    {
+        $this->txn_time = trim($value);
+        return $this;
+    }
+
+    public function setUserId($value)
+    {
+        $this->user_id = trim($value);
+        return $this;
     }
 }
