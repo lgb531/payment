@@ -57,8 +57,8 @@ class WapPay
             'pickupUrl'     => $this->front_url, //前台通知地址
             'receiveUrl'    => $this->back_url, //后台通知地址
             'version'       => $this->version, //版本号
-            'language'      => '1', //语言类型 1-简体中文 2-繁体中文 3-英文
-            'signType'      => '0', // 0-md5 1-证书
+            'language'      => '', //语言类型 1-简体中文 2-繁体中文 3-英文
+            'signType'      => $this->signType, // 0-md5 1-证书
             'merchantId'    => $this->mer_id,
             'payerName'     => '',
             'payerEmail'    => '',
@@ -67,7 +67,7 @@ class WapPay
             'pid'           => '',
             'orderNo'       => $this->order_id,//订单号
             'orderAmount'   => $this->txn_amt,//订单金额
-            'orderCurrenc'  => '0',
+            'orderCurrency' => '',
             'orderDatetime' => $this->txn_time,//交易发起时间
             'orderExpireDatetime'=> '',
             'productName'   => '',
@@ -81,7 +81,8 @@ class WapPay
             'payType'       => $this->payType,
             'issuerId'      => '',
             'pan'           => '',
-            'tradeNature'   => '' //选填
+            'tradeNature'   => 'GOODS', //选填
+            'customsExt'    => ''
         ];
 
         //生成签名
@@ -111,7 +112,7 @@ class WapPay
         ];
 
         //生成签名
-        $params['signMsg'] = $this->makeSignature($params);
+        $params['signMsg'] = $this->makeSignature($params, 1);
 
         $data = http_build_query($params);
         
@@ -141,7 +142,7 @@ class WapPay
      * @return void
      * @author leolei <346991581@qq.com>
      */
-    public function verify($data = null)
+    public function verify($data)
     {
         // 先判断是否有返回参数
         if (!$data) {
@@ -151,9 +152,64 @@ class WapPay
             $data = $_POST ?  : $_GET;
         }
 
-        $sign = $data ['signMsg'];
+        $sign = $data['signMsg'];
         unset($data['signMsg']);
-        $res_sign = $this->makeSignature($data);
+
+        //组合验证签名的参数
+        $bufSignSrc = "";
+        if ($data['merchantId'] != "") {
+            $bufSignSrc=$bufSignSrc."merchantId=".$data['merchantId']."&";
+        }
+        if ($data['version'] != "") {
+            $bufSignSrc=$bufSignSrc."version=".$data['version']."&";
+        }
+        if ($data['language'] != "") {
+            $bufSignSrc=$bufSignSrc."language=".$data['language']."&";
+        }
+        if ($data['signType'] != "") {
+            $bufSignSrc=$bufSignSrc."signType=".$data['signType']."&";
+        }
+        if ($data['payType'] != "") {
+            $bufSignSrc=$bufSignSrc."payType=".$data['payType']."&";
+        }
+        if ($data['issuerId'] != "") {
+            $bufSignSrc=$bufSignSrc."issuerId=".$data['issuerId']."&";
+        }
+        if ($data['paymentOrderId'] != "") {
+            $bufSignSrc=$bufSignSrc."paymentOrderId=".$data['paymentOrderId']."&";
+        }
+        if ($data['orderNo'] != "") {
+            $bufSignSrc=$bufSignSrc."orderNo=".$data['orderNo']."&";
+        }
+        if ($data['orderDatetime'] != "") {
+            $bufSignSrc=$bufSignSrc."orderDatetime=".$data['orderDatetime']."&";
+        }
+        if ($data['orderAmount'] != "") {
+            $bufSignSrc=$bufSignSrc."orderAmount=".$data['orderAmount']."&";
+        }
+        if ($data['payDatetime'] != "") {
+            $bufSignSrc=$bufSignSrc."payDatetime=".$data['payDatetime']."&";
+        }
+        if ($data['payAmount'] != "") {
+            $bufSignSrc=$bufSignSrc."payAmount=".$data['payAmount']."&";
+        }
+        if ($data['ext1'] != "") {
+            $bufSignSrc=$bufSignSrc."ext1=".$data['ext1']."&";
+        }
+        if ($data['ext2'] != "") {
+            $bufSignSrc=$bufSignSrc."ext2=".$data['ext2']."&";
+        }
+        if ($data['payResult'] != "") {
+            $bufSignSrc=$bufSignSrc."payResult=".$data['payResult']."&";
+        }
+        if ($data['errorCode'] != "") {
+            $bufSignSrc=$bufSignSrc."errorCode=".$data['errorCode']."&";
+        }
+        if ($data['returnDatetime'] != "") {
+            $bufSignSrc=$bufSignSrc."returnDatetime=".$data['returnDatetime']."&";
+        }
+        $bufSignSrc=$bufSignSrc."key=".$this->key;
+        $res_sign = strtoupper(md5($bufSignSrc));
         if ($sign == $res_sign) {
             return true;
         } else {
@@ -165,19 +221,24 @@ class WapPay
      * 支付字符串签名
      *
      * @param array $params
+     * @param integer $type type 1 是注册的签名
      * @return void
      * @author leolei <346991581@qq.com>
      */
-    private function makeSignature($params)
+    private function makeSignature($params = [], $type = 0)
     {
-        // 清除空数据
         foreach ($params as $key => $val) {
             if ($val == '') {
                 unset($params[$key]);
             }
         }
         $query = http_build_query($params);
-        $query = '&'.$query.'&key='.$this->key.'&';
+        $query = urldecode($query);
+
+        $query = $query.'&key='.$this->key;
+        if ($type) {
+            $query = '&'.$query.'&';
+        }
         return strtoupper(md5($query));
     }
 
@@ -191,20 +252,13 @@ class WapPay
     {
         $encodeType = isset ( $params ['encoding'] ) ? $params ['encoding'] : 'UTF-8';
         $html = <<<eot
-        <html>
-        <head>
-        <meta http-equiv="Content-Type" content="text/html; charset={$encodeType}" />
-        </head>
-        <body onload="javascript:document.pay_form.submit();">
-        <form id="pay_form" name="pay_form" action="{$reqUrl}" method="post">
+        <html><head><meta http-equiv="Content-Type" content="text/html; charset={$encodeType}" /></head><body onload="javascript:document.pay_form.submit();"><form id="pay_form" name="pay_form" action="{$reqUrl}" method="post">
 eot;
         foreach ($params as $key => $value) {
             $html .= "<input type=\"hidden\" name=\"{$key}\" id=\"{$key}\" value=\"{$value}\" />\n";
         }
         $html .= <<<eot
-        </form>
-        </body>
-        </html>
+        </form></body></html>
 eot;
         return $html;
     }
