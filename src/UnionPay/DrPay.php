@@ -1,4 +1,5 @@
 <?php
+
 namespace leolei\Unionpay;
 
 use leolei\Unionpay\Lib\Rsa;
@@ -69,7 +70,7 @@ class DrPay
             'txnSubType'    => '00',                    //交易子类
             'bizType'       => '000401',                //业务类型
             'accessType'    => '0',                     //接入类型
-            'channelType'   => '07',                    //渠道类型，07-PC，08-手机
+            'channelType'   => '08',                    //渠道类型，07-PC，08-手机
             'currencyCode'  => '156',                   //交易币种，境内商户固定156
             'backUrl'       => $this->back_url,         //后台通知地址
 
@@ -82,13 +83,17 @@ class DrPay
             'txnAmt'        => $this->txn_amt,  //交易金额，单位分，此处默认取demo演示页面传递的参数
 
             //转账卡号等信息
+            // 'accNo' => 'kRhxYEsv4RUAtbEJvsmNJSZlffTu+uWEOh1xEAVWR+ugL3zjeM9HFn4kH/Tmzfl2pW4S8fbGkjdLZ8J5XtX5CtoQgw5DlidEYsMJO0vyjqjIlzv0VsZa1y2hwFIUQmF4O10KHMz34wW1e3qdUq4rmc0mYMcDIjYEt8/nMyxc9++k4NbK07cchLlBjVnYlN/cHNCrQgRXBIHQPezMql3ZLM/0gQd8l9s6po5z/aPQ3TfHTv/03iXMa5+5DKqX9/xGowv8mYR/PsPyvVveHpptGrSSpnFl/SuJgEoS1l1ldIMm6IAaiPrc6UqKWtshQGo3x86ctaAtTXCmtheAXc2w+g==' ,     //卡号，新规范请按此方式填写$this->accNo
+            // 'customerInfo' => 'e2NlcnRpZlRwPTAxJmNlcnRpZklkPTUxMDI2NTc5MDEyODMwMyZjdXN0b21lck5tPeW8oOS4iX0=', //持卡人身份信息，新规范请按此方式填写$this->customerInfo
             'accNo' => $this->accNo,
             'customerInfo' => $this->customerInfo,
             'certId' =>$this->getCertId()
         ];
         $params['signature'] = $this->makeSignature($params);
+        pre($params);
         //发送数据
         $result_arr = Rsa::post($this->backTransUrl, $params);
+        pre($result_arr);
         //验证请求
         if (sizeof($result_arr) <= 0) {
             return null;

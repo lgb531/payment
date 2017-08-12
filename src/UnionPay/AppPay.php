@@ -89,7 +89,7 @@ class AppPay
 
         //接收处理结果
         if ($result_arr["respCode"] == "00") {
-            return true;
+            return $result_arr["tn"];
         }
         return null;
     }

@@ -9,7 +9,7 @@
         "php": ">=5.4.0"
     },
     "license": "MIT",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "authors": [
         {
             "name": "leolei",
@@ -18,7 +18,8 @@
     ],
     "autoload": {
         "psr-4": {
-            "leolei\\Unionpay\\": "src/Unionpay/"
+            "leolei\\Unionpay\\": "src/Unionpay/",
+            "leolei\\AllinPay\\": "src/AllinPay/"
         }
     }
 }
